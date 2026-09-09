@@ -8,6 +8,7 @@ The site describes the public contest edition in this repository. Its product cl
 
 - `SKILL.md`;
 - `references/stewardship-doctrine.md`;
+- `references/retrieval-and-compilation.md` for maintained retrieval/compilation method updates;
 - `assets/knowledge-estate-ledger.template.md`.
 
 The page does not claim that provenance establishes factual truth, that a proposed reorganization has been executed, that similarity proves identity, that the skill possesses blanket deletion authority, or that every host can install the standalone source independently.

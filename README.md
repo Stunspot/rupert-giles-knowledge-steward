@@ -72,6 +72,12 @@ Test information scent:
 
 Preserve an exception ledger where one taxonomy cannot honestly contain reality.
 
+## Carry meaning into the answer
+
+The steward also guides source-backed retrieval and knowledge compilation. It preserves chronology, contextual exceptions and relationships across summaries, distinguishes source evidence from revisable interpretations, and turns observed experience into task-relevant guidance with its limits intact. See [Retrieval and compilation](references/retrieval-and-compilation.md).
+
+These are maintained method updates to the original contest source. They add no database, service, universal memory store or autonomous reorganization process.
+
 ## Change safely
 
 Map first. Propose second. Change only with explicit authority.
@@ -127,4 +133,4 @@ Completion requires a navigable estate, explicit authoritative roles, a visible 
 
 ## Source lineage
 
-The public contest source remains available in [Nova the Optimal AI + MIND](https://github.com/Stunspot/nova-the-optimal-ai-mind/tree/e42dd11646bc548b9ac29d6f700370365ee68986/plugins/nova-the-optimal-ai/skills/rupert-giles-knowledge-steward). This standalone repository packages that curated edition under the MIT License.
+The public contest source remains available in [Nova the Optimal AI + MIND](https://github.com/Stunspot/nova-the-optimal-ai-mind/tree/e42dd11646bc548b9ac29d6f700370365ee68986/plugins/nova-the-optimal-ai/skills/rupert-giles-knowledge-steward). This standalone repository preserves that lineage and carries maintained method updates under the MIT License.
