@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+verification/browser-catalog*
+verification/browser-paths.json
+verification/browser-source/
+verification/*.log
+verification/*.err
+verification/console-debug.json

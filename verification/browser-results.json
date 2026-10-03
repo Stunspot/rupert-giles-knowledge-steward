@@ -1,0 +1,284 @@
+{
+  "passed": true,
+  "checks": 41,
+  "errors": [
+    {
+      "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "url": "http://127.0.0.1:8809/api/import"
+    }
+  ],
+  "network": [
+    {
+      "url": "http://127.0.0.1:8809/",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/style.css",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/app.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/catalog",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=Stoges",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/browse?id=stooges&path=Shemp+Studies%2FREADME.md",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/preview?id=stooges&path=Shemp+Studies%2FREADME.md",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/brief?id=stooges&section=shemp&question=Which+films+belong+to+the+Shemp+era%3F",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/brief?id=stooges&section=shemp&question=Which+films+belong+to+the+Shemp+era%3F",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/browse?id=stooges&path=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/browse?id=stooges&path=Shemp+Studies",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/preview?id=stooges&path=Shemp+Studies%2FREADME.md",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/browse?id=stooges&path=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/save",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=Stoges",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/style.css",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/app.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/catalog",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=Stooges",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/check",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=Stooges",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/save",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=Stooges",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/save",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/export",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/import",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/import",
+      "status": 400
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/import",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/save",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/save",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8809/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8808/",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8808/style.css",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8808/app.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8808/api/catalog",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8808/api/search?q=",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8808/api/browse?id=rpg-library&path=D%26D%2FCampaigns%2FPort+Zindra%2FREADME.md",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:8808/api/preview?id=rpg-library&path=D%26D%2FCampaigns%2FPort+Zindra%2FREADME.md",
+      "status": 200
+    }
+  ],
+  "requests": [
+    "http://127.0.0.1:8809/",
+    "http://127.0.0.1:8809/style.css",
+    "http://127.0.0.1:8809/app.js",
+    "http://127.0.0.1:8809/api/catalog",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=Stoges",
+    "http://127.0.0.1:8809/api/browse?id=stooges&path=Shemp+Studies%2FREADME.md",
+    "http://127.0.0.1:8809/api/preview?id=stooges&path=Shemp+Studies%2FREADME.md",
+    "http://127.0.0.1:8809/api/brief?id=stooges&section=shemp&question=Which+films+belong+to+the+Shemp+era%3F",
+    "http://127.0.0.1:8809/api/brief?id=stooges&section=shemp&question=Which+films+belong+to+the+Shemp+era%3F",
+    "http://127.0.0.1:8809/api/browse?id=stooges&path=",
+    "http://127.0.0.1:8809/api/browse?id=stooges&path=Shemp+Studies",
+    "http://127.0.0.1:8809/api/preview?id=stooges&path=Shemp+Studies%2FREADME.md",
+    "http://127.0.0.1:8809/api/browse?id=stooges&path=",
+    "http://127.0.0.1:8809/api/save",
+    "http://127.0.0.1:8809/api/search?q=Stoges",
+    "http://127.0.0.1:8809/",
+    "http://127.0.0.1:8809/style.css",
+    "http://127.0.0.1:8809/app.js",
+    "http://127.0.0.1:8809/api/catalog",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=Stooges",
+    "http://127.0.0.1:8809/api/check",
+    "http://127.0.0.1:8809/api/search?q=Stooges",
+    "http://127.0.0.1:8809/api/save",
+    "http://127.0.0.1:8809/api/search?q=Stooges",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/save",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/export",
+    "http://127.0.0.1:8809/api/import",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/import",
+    "http://127.0.0.1:8809/api/import",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/save",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/save",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8809/api/search?q=",
+    "http://127.0.0.1:8808/",
+    "http://127.0.0.1:8808/style.css",
+    "http://127.0.0.1:8808/app.js",
+    "http://127.0.0.1:8808/api/catalog",
+    "http://127.0.0.1:8808/api/search?q=",
+    "http://127.0.0.1:8808/api/browse?id=rpg-library&path=D%26D%2FCampaigns%2FPort+Zindra%2FREADME.md",
+    "http://127.0.0.1:8808/api/preview?id=rpg-library&path=D%26D%2FCampaigns%2FPort+Zindra%2FREADME.md"
+  ]
+}

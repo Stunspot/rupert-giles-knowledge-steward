@@ -18,6 +18,12 @@ This repository contains the curated contest skill shipped with **Nova during Op
 
 This is a standalone source link. Independent plugin installation is not claimed by the contest evidence.
 
+## Knowledge Atlas — 1.1.0
+
+Open `Open Giles.cmd` (Windows) or `Open Giles.command` (macOS/Linux) to recognize existing stores, search remembered fragments, follow named entry points, inspect bounded source samples and prepare precise retrieval briefs. Register/edit/mark locators and export/import the catalog without modifying source stores. Python 3.10+ hosts the optional local interface; ordinary conversation remains available without it. Read [Open Giles](workspace/README.md) for paths, launch and recovery.
+
+The catalog and its private descriptive records live outside the installed skill. The interface is dependency-free; it adds no corpus index, embeddings or automatic reorganization.
+
 ## Start from retrieval journeys
 
 A useful knowledge system answers the questions its people actually ask. Begin with representative journeys before choosing folders, tags, naming conventions, or tools.
