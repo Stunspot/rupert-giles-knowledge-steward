@@ -1,13 +1,16 @@
 # THEME — AFTERIMAGE ATLAS
 
 🎨 NAME: AFTERIMAGE ATLAS
-🌈 COLOR PALETTE: walnut base #211E19; dark reading #302C25; muted parchment text #D1C5B1; brass guidance #C8A868; quiet annotations #B5A58D.
-🧠 MOOD: A patient inhabited reading desk.
-❤️ EMOTION: Relief at finding useful work already retained.
-🔤 FONT PREFERENCE: Georgia collection and reading hierarchy; system sans controls; Consolas exact routes.
-🔍 VISUAL MOTIF: The estate as a constellation of indexed holdings beside a dark reading dock and a persistent working tray.
-💬 VIBE TAGS: walnut, brass, scholarly, calm, source-grounded.
-🌀 ANIMATED EFFECTS: Stable orientation and immediate content feedback; reduced motion disables smooth navigation.
-📦 USE CASE: Recognizing collections, deliberate source reading and compiling knowledge for a live task.
+🌈 COLOR PALETTE: smoked-oak ground #151310; matte folio #2B2721; parchment text #D7CBB7; brass guidance #D2B373; quiet annotations #B9A98F.
+🧠 MOOD: Patient scholarship made physically present.
+❤️ EMOTION: Relief at recovering useful work already retained.
+🔤 FONT PREFERENCE: Georgia collection/document hierarchy; system sans actions; Consolas exact routes.
+🔍 VISUAL MOTIF: An engraved atlas in a leather instrument well, indexed drawer handles, an inset brass medallion, layered dark folio edges and a recessed evidence blotter.
+💬 VIBE TAGS: leather, smoked oak, engraving, grazing lamplight, archival care.
+🌀 ANIMATED EFFECTS: A small map-control lift on hover, depressed press feedback; no ambient motion. Reduced motion disables transitions.
+📦 USE CASE: Recognizing collections, reading original contents and building a source-grounded working packet.
 
-The owner rejected the earlier cream folio glare. This revision darkens the complete reading environment and subordinates catalog administration to finding, reading and using knowledge. It preserves the stable AFTERIMAGE ATLAS identity with a new implementation revision. Bloomfield Scrapbook reference images informed material and orientation; their artwork is not copied. Actual runtime screenshots establish implementation, without a separate owner-approval claim. See DESIGN.md and verification/RESULTS.md.
+## Material contract and disposition
+The owner rejected the previous flat implementation and demanded images, material, volume, light and surface before color. This same-version presentation repair preserves the stable product-scoped identity but reconstructs its body. Generated original bitmap artwork supplies actual wood/leather pores and engraved instrument imagery; local gradients and occlusion carry light through controls and reader edges. The broad source-reading interior remains dark and quiet. Decorative engravings are not geographic data; the map connects only recorded shared subjects.
+
+Artwork: assets/atlas-material.png, generated for this application. It has no dependency on the private Scrapbook. The viewed BASALT CIRCUIT, IRONCOURT, ORNAMENTED AUTHORITY and WAYFINDER pictures informed material and light, without copying their artwork. Implemented and visually reviewed, not owner-approved. See DESIGN.md and verification/RESULTS.md.

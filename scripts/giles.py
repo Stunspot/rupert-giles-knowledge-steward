@@ -597,11 +597,17 @@ class Handler(BaseHTTPRequestHandler):
         try:
             self.guard(write);u=urlparse(self.path);query={k:v[0] for k,v in parse_qs(u.query,keep_blank_values=True).items()}
             if not write:
-                filename={'/':'index.html','/app.js':'app.js','/style.css':'style.css'}.get(u.path)
+                filename={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/skins.css':'skins.css'}.get(u.path)
                 if filename:
                     content=(ROOT/'workspace'/filename).read_text(encoding='utf-8')
                     if filename=='index.html': content=content.replace('{{TOKEN}}',self.server.token)
-                    return self.response(200,content,{'index.html':'text/html','app.js':'text/javascript','style.css':'text/css'}[filename]+'; charset=utf-8')
+                    return self.response(200,content,{'index.html':'text/html','app.js':'text/javascript','style.css':'text/css','skins.css':'text/css'}[filename]+'; charset=utf-8')
+                # Fixed public asset routes: no user-controlled path resolution.
+                material={'/assets/atlas-material.png':'atlas-material.png',
+                          '/assets/blackglass-material.png':'blackglass-material.png',
+                          '/assets/mirrorloop-material.png':'mirrorloop-material.png'}.get(u.path)
+                if material:
+                    return self.response(200,(ROOT/'workspace/assets'/material).read_bytes(),'image/png')
                 if u.path=='/favicon.ico': return self.response(204,b'','image/x-icon')
             doc=self.server.catalog.read()
             if write:

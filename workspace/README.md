@@ -16,7 +16,7 @@ Select a passage in the reader and collect it in the Working tray. Give the task
 
 Working material persists separately from originals. Reopen source returns to its reading anchor. Changed or missing sources leave historical quotations intact and show a separate current verification observation. Export working tray and Import working tray round-trip the task, excerpts, annotations and historical provenance, including sources that have since moved or disappeared. The tray permits 20 excerpts and a 500 KB serialized document; choose focused passages rather than whole corpora.
 
-Afterimage Atlas is a quiet dark reading desk. Index Circuit uses compact engineering rails and, on wide screens, keeps collection, reader and tray side by side. Nightglass Relay is a spacious dark glass console. Themes and map/list preference survive browser reload. All three preserve the same knowledge and controls.
+Afterimage Atlas is a tactile archival desk: engraved leather, brass instruments, dark folio page edges and an evidence blotter. Blackglass Crimson uses a recessed optical map, suspended reading slabs and three concurrent collection/reader/tray bays on wide screens. Mirrorloop uses faceted mirrors, reflected plane edges and grazing light around quiet reading interiors. Each includes original bitmap material artwork served locally; these environments differ in physical construction, optical behavior, geometry, density and working posture. Themes and map/list preference survive browser reload. All three preserve the same knowledge and controls.
 
 ## Custody and recovery
 

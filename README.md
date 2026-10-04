@@ -22,7 +22,7 @@ This is a standalone source link. Independent plugin installation is not claimed
 
 Open `Open Giles.cmd` or `Open Giles.command` to find existing collections, read actual contents and put retained knowledge to work. Immediate store overviews, direct section/file reading, a shared-subject estate map, text/PDF/DOCX/image readers and a read-only Personal AI Archive adapter lead into a persistent working tray. Collect exact passages, compare two sources, annotate separately and compile a downloadable Markdown knowledge packet with source routes and inspection limits.
 
-Three dark environments support different working postures: Afterimage Atlas, Index Circuit and Nightglass Relay. Catalog editing remains available behind disclosures. Private catalog and working material live outside the installed skill; original source stores stay with their owners. Python 3.10+ hosts the local app; PDF text extraction uses the pinned `requirements.txt`. Read [Open Giles](workspace/README.md) and [the design thesis](workspace/DESIGN.md).
+Three dark environments support different working postures: Afterimage Atlas, Blackglass Crimson and Mirrorloop. Catalog editing remains available behind disclosures. Private catalog and working material live outside the installed skill; original source stores stay with their owners. Python 3.10+ hosts the local app; PDF text extraction uses the pinned `requirements.txt`. Read [Open Giles](workspace/README.md) and [the design thesis](workspace/DESIGN.md).
 
 This component is staged for the owner's coordinated skill-upgrade batch. The Nova Emergent package release remains held.
 
