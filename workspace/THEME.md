@@ -1,17 +1,16 @@
 # THEME — AFTERIMAGE ATLAS
 
 🎨 NAME: AFTERIMAGE ATLAS
-🌈 COLOR PALETTE:
-Base: #251E29 — archive ink
-Primary: #382738 — wine depth
-Highlight: #E9C179 — brass guidance
-Text: #F1E2C4 — warm vellum; #BCAEAD — quiet ink; #D66F51 — cinnabar concern
-🧠 MOOD: Patient, inhabited discovery; remembered fragments become precise routes.
-❤️ EMOTION: Relief at recovering something already kept.
-🔤 FONT PREFERENCE: Georgia display and collection names, system sans controls, monospace routes.
-🔍 VISUAL MOTIF: Numbered book spines become an open layered folio; brass rules connect shelf and source.
-💬 VIBE TAGS: archival, warm nocturne, scholarly, tactile, navigable
-🌀 ANIMATED EFFECTS: Brief folio arrival; stable selection; reduced motion removes transitions.
-📦 USE CASE: Knowledge estates, reference collections and source-led discovery.
+🌈 COLOR PALETTE: smoked-oak ground #151310; matte folio #2B2721; parchment text #D7CBB7; brass guidance #D2B373; quiet annotations #B9A98F.
+🧠 MOOD: Patient scholarship made physically present.
+❤️ EMOTION: Relief at recovering useful work already retained.
+🔤 FONT PREFERENCE: Georgia collection/document hierarchy; system sans actions; Consolas exact routes.
+🔍 VISUAL MOTIF: An engraved atlas in a leather instrument well, indexed drawer handles, an inset brass medallion, layered dark folio edges and a recessed evidence blotter.
+💬 VIBE TAGS: leather, smoked oak, engraving, grazing lamplight, archival care.
+🌀 ANIMATED EFFECTS: A small map-control lift on hover, depressed press feedback; no ambient motion. Reduced motion disables transitions.
+📦 USE CASE: Recognizing collections, reading original contents and building a source-grounded working packet.
 
-Authored for Rupert Giles Knowledge Atlas. Viewed Scrapbook references VELLUM, WAYFINDER and VERDIGRIS LEDGER inform material, orientation and depth; their artwork is not copied or shipped. The shelf supports recognition, while the folio concentrates explicit source inspection and narrow retrieval handoff. Full composition and functional rationale: DESIGN.md. Implemented and screenshot-reviewed; no separate owner-approval claim.
+## Material contract and disposition
+The owner rejected the previous flat implementation and demanded images, material, volume, light and surface before color. This same-version presentation repair preserves the stable product-scoped identity but reconstructs its body. Generated original bitmap artwork supplies actual wood/leather pores and engraved instrument imagery; local gradients and occlusion carry light through controls and reader edges. The broad source-reading interior remains dark and quiet. Decorative engravings are not geographic data; the map connects only recorded shared subjects.
+
+Artwork: assets/atlas-material.png, generated for this application. It has no dependency on the private Scrapbook. The viewed BASALT CIRCUIT, IRONCOURT, ORNAMENTED AUTHORITY and WAYFINDER pictures informed material and light, without copying their artwork. Implemented and visually reviewed, not owner-approved. See DESIGN.md and verification/RESULTS.md.

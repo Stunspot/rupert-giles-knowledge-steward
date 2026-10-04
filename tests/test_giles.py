@@ -126,6 +126,18 @@ class HTTP(Core):
         code,data,_=self.request('/api/preview?id=stooges&path=Shemp%20Studies%2FREADME.md');self.assertEqual(code,200);self.assertEqual(json.loads(data)['text'],'Shemp chronology: 1947–1955.\n');self.assertEqual(self.request('/api/preview?id=stooges&path=..%2Fsecret')[0],400)
     def test_local_assets_security_and_host(self):
         code,html,headers=self.request('/');self.assertEqual(code,200);self.assertIn(self.server.token.encode(),html);self.assertIn("frame-ancestors 'none'",headers['Content-Security-Policy']);self.assertEqual(self.request('/app.js')[0],200);self.assertEqual(self.request('/style.css')[0],200);self.assertEqual(self.request('/api/catalog',headers={'Host':'hostile.invalid'})[0],400);self.assertEqual(self.request('/unknown')[0],404)
+    def test_material_assets_are_real_local_png_bytes_and_confined(self):
+        before=self.path.read_bytes()
+        self.assertIn(b'/skins.css',self.request('/')[1])
+        self.assertIn('text/css',self.request('/skins.css')[2]['Content-Type'])
+        for name in ('atlas','blackglass','mirrorloop'):
+            code,body,headers=self.request('/assets/'+name+'-material.png')
+            self.assertEqual(code,200);self.assertEqual(headers['Content-Type'],'image/png')
+            self.assertEqual(body,(g.ROOT/'workspace/assets'/ (name+'-material.png')).read_bytes())
+            self.assertTrue(body.startswith(b'\x89PNG\r\n\x1a\n'));self.assertGreater(len(body),10000)
+        for route in ('/assets/../scripts/giles.py','/assets/%2e%2e/scripts/giles.py','/assets/catalog.json','/assets/arbitrary.png'):
+            self.assertEqual(self.request(route)[0],404)
+        self.assertEqual(self.path.read_bytes(),before)
     # Core cases run only in Core; HTTP subclasses it solely to reuse the fixture.
 for name in list(Core.__dict__):
     if name.startswith('test_') and name not in HTTP.__dict__:setattr(HTTP,name,None)

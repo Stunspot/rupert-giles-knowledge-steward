@@ -1,0 +1,15 @@
+{
+  "component": "1.2.0",
+  "python_passed": 76,
+  "python_skipped": 1,
+  "independent_browser_checks": 45,
+  "existing_browser_assertions": 41,
+  "browser_regressions": 13,
+  "js_syntax": "pass",
+  "python_compile": "pass",
+  "line_endings": "pass",
+  "actual_sources": "pass",
+  "installed_development_runtime": "pass",
+  "screenshots_viewed": true,
+  "package_release": "held"
+}

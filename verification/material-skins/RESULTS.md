@@ -1,0 +1,9 @@
+# Material repair evidence
+
+Same staged component version: 1.2.0. Owner rejected the prior flat skins; the improved working layout remains. Current environments are Afterimage Atlas, Blackglass Crimson and Mirrorloop. Source and installed development runtime match in all16 changed runtime/document/art files. Parent Nova Emergent release remains held.
+
+Observed checks:78 Python tests (77 pass, one host symlink skip);45 source-work browser checks;41 existing semantic browser assertions;13 regressions;20 new material/geometry integration checks; JS syntax, Python compilation, diff and repository line-ending checks pass. The new HTTP check serves exact PNG bytes with correct MIME and rejects arbitrary/traversal asset paths. New browser checks decode all three bitmaps, execute collection selection through source reading, persist environment preference, respect reduced motion and prove map labels remain separate at390/760/900/1200/1600px.
+
+A fresh visual reviewer initially required repairs for phone label collisions and flat Mirrorloop working planes. After repairs and recapture, all three material environments pass the inspected desktop/phone/reader/tray/dialog/focus/loading/error states. This is an implementation judgment, not owner approval. Error appearance uses a controlled HTTP400 response; loading holds a real source request. Actual art, application screenshots and full private visual review are retained with the stable product-scoped Scrapbook theme revisions.
+
+Installed port8808 runtime reads real RPG source contents and serves every new asset locally without unexpected console/network errors. Real eight-store/revision9 catalog bytes are unchanged, and its live tray remains empty. Actual-source screenshots and receipts remain in private owner custody; public tests use isolated synthetic fixtures.

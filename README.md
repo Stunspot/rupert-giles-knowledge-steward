@@ -18,11 +18,13 @@ This repository contains the curated contest skill shipped with **Nova during Op
 
 This is a standalone source link. Independent plugin installation is not claimed by the contest evidence.
 
-## Knowledge Atlas — 1.1.0
+## Knowledge Atlas — 1.2.0 staged skill upgrade
 
-Open `Open Giles.cmd` (Windows) or `Open Giles.command` (macOS/Linux) to recognize existing stores, search remembered fragments, follow named entry points, inspect bounded source samples and prepare precise retrieval briefs. Register/edit/mark locators and export/import the catalog without modifying source stores. Python 3.10+ hosts the optional local interface; ordinary conversation remains available without it. Read [Open Giles](workspace/README.md) for paths, launch and recovery.
+Open `Open Giles.cmd` or `Open Giles.command` to find existing collections, read actual contents and put retained knowledge to work. Immediate store overviews, direct section/file reading, a shared-subject estate map, text/PDF/DOCX/image readers and a read-only Personal AI Archive adapter lead into a persistent working tray. Collect exact passages, compare two sources, annotate separately and compile a downloadable Markdown knowledge packet with source routes and inspection limits.
 
-The catalog and its private descriptive records live outside the installed skill. The interface is dependency-free; it adds no corpus index, embeddings or automatic reorganization.
+Three dark environments support different working postures: Afterimage Atlas, Blackglass Crimson and Mirrorloop. Catalog editing remains available behind disclosures. Private catalog and working material live outside the installed skill; original source stores stay with their owners. Python 3.10+ hosts the local app; PDF text extraction uses the pinned `requirements.txt`. Read [Open Giles](workspace/README.md) and [the design thesis](workspace/DESIGN.md).
+
+This component is staged for the owner's coordinated skill-upgrade batch. The Nova Emergent package release remains held.
 
 ## Start from retrieval journeys
 
