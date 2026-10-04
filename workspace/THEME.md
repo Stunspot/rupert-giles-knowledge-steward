@@ -1,19 +1,13 @@
 # THEME — AFTERIMAGE ATLAS
 
 🎨 NAME: AFTERIMAGE ATLAS
-🌈 COLOR PALETTE:
-Base: #211B15 — walnut ink
-Primary: #392B1E — cabinet depth
-Highlight: #D7B46C — brass guidance
-Text: #F2E5C9 — archival cream; #C4B595 — quiet brass ink; #B65B38 — burnt-umber concern
-🧠 MOOD: Patient, inhabited discovery; remembered fragments become precise routes.
-❤️ EMOTION: Relief at recovering something already kept.
-🔤 FONT PREFERENCE: Georgia display and collection names, system sans controls, monospace routes.
-🔍 VISUAL MOTIF: Walnut catalog drawers with inset brass index plates lead to an open layered paper folio.
-💬 VIBE TAGS: archival, walnut, brass, scholarly, tactile, navigable
-🌀 ANIMATED EFFECTS: Brief folio arrival; stable selection; reduced motion removes transitions.
-📦 USE CASE: Knowledge estates, reference collections and source-led discovery.
+🌈 COLOR PALETTE: walnut base #211E19; dark reading #302C25; muted parchment text #D1C5B1; brass guidance #C8A868; quiet annotations #B5A58D.
+🧠 MOOD: A patient inhabited reading desk.
+❤️ EMOTION: Relief at finding useful work already retained.
+🔤 FONT PREFERENCE: Georgia collection and reading hierarchy; system sans controls; Consolas exact routes.
+🔍 VISUAL MOTIF: The estate as a constellation of indexed holdings beside a dark reading dock and a persistent working tray.
+💬 VIBE TAGS: walnut, brass, scholarly, calm, source-grounded.
+🌀 ANIMATED EFFECTS: Stable orientation and immediate content feedback; reduced motion disables smooth navigation.
+📦 USE CASE: Recognizing collections, deliberate source reading and compiling knowledge for a live task.
 
-Authored for Rupert Giles Knowledge Atlas. Viewed Scrapbook references VELLUM, WAYFINDER and VERDIGRIS LEDGER inform material, orientation and depth; their artwork is not copied or shipped. The shelf supports recognition, while the folio concentrates explicit source inspection and narrow retrieval handoff. Full composition and functional rationale: DESIGN.md. Implemented and screenshot-reviewed; no separate owner-approval claim.
-
-2026-10-03 owner correction: purple/wine substrates were rejected. Current application uses warm walnut, brass and archival cream throughout normal, selected, focus, preview and dialog states. Purple is not a default design direction. This is a presentation edit retaining the working knowledge workflow.
+The owner rejected the earlier cream folio glare. This revision darkens the complete reading environment and subordinates catalog administration to finding, reading and using knowledge. It preserves the stable AFTERIMAGE ATLAS identity with a new implementation revision. Bloomfield Scrapbook reference images informed material and orientation; their artwork is not copied. Actual runtime screenshots establish implementation, without a separate owner-approval claim. See DESIGN.md and verification/RESULTS.md.

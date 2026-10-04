@@ -1,31 +1,17 @@
-# Giles Knowledge Atlas — authoritative upgrade map
+# Giles Knowledge Atlas: design thesis and interaction model
 
-The useful world-change: people and agents recognize knowledge they already own, choose the appropriate source, and take an economical, source-linked route into it. A visible catalog survives conversational amnesia. A retrieval brief converts recognition into a narrow next read.
+Baseline: Giles 1.1.0 at 56e431f. Its catalog solved recognition but treated source entry selection as administrative state and concentrated a glaring cream panel. The user needed contents and useful action. This is a component update to 1.2.0: new supported reading, evidence-work and indexed-archive workflows. The Nova Emergent package release remains held for the coordinated skill batch.
 
-Baseline: maintained Rupert Giles 1.0.0 supplied as a shared Nova skill. This 1.1.0 is an update: a functioning optional local explorer and portable catalog add a supported workflow. Existing stewardship, four-ledger distinctions and source ownership remain controlling. Signal Loom Infographics is an owner-specified display-name edit retaining signal-loom and 0.1.1.
+Giles's fundamental job is to recover retained knowledge and turn it into source-grounded work while preserving custody, corrections and uncertainty. A conversational model can retrieve and synthesize, but a dedicated interface can keep the estate spatially visible, let a person inspect source contents directly, maintain orientation across collections, compare exact evidence and preserve a working selection beyond one conversation. Those advantages are the product's center of gravity.
 
-The catalog owns descriptive locators only. Source stores retain their content, authority, APIs and retention. Registration is neither reading nor canonization. Availability checks observe paths at a named time; they do not establish source freshness or accuracy. Descriptive notes retain their source basis. Catalog search is lexical with bounded spelling tolerance; the model supplies semantic judgment. A small CLI and copyable retrieval brief carry the same route as the browser.
+The interaction model is find → read → collect → compare → annotate → compile → use. A persistent estate map and complete collection list orient retrieval; recorded subject edges establish why two stores connect. Selecting a collection immediately loads an observed overview. Named sections and file links open actual contents on one action. Breadcrumbs preserve the active route. The reading dock supports bounded text, document text and real image pixels. Personal AI Archive has a source-specific, read-only published-index adapter because its knowledge resides in indexed messages rather than folder names.
 
-A narrower folder picker misses purpose and imperfect recall. A universal content index duplicates owners and consumes context before finding the right store. A useful middle: recognizable stores, aliases/topics/use cues, named sections, explicit source samples, favorites, lifecycle and provenance, and focused retrieval handoff. No autonomous scanning, embeddings, cloud service or corpus rewrite.
+The working tray holds a purpose and exact evidence with separate annotations. Comparison places two retained quotations together. Packet compilation produces a usable Markdown artifact with task, quotations, source routes, evidence limits and interpretation clearly separated. Current verification observations expose source drift without rewriting historical evidence. Catalog maintenance and custody sit behind disclosures; their forms serve recovery and stewardship rather than dominate discovery.
 
-Acceptance: create/edit/favorite/remove catalog records; revision-safe persistence; reload and import/export round trip; bounded local path checks, directory browse and text preview; section traversal confinement; ranked recall queries; exact retrieval brief; empty/invalid/unavailable states; working wide and narrow UI and keyboard controls; no writes to registered sources. Each event and API has an executable oracle.
+Information truth: registration is not reading; file presence is not freshness; shared topics are not agreement; a PDF extraction window is not an exact quotation page; an indexed message is not the complete conversation; an imported historical quote is not automatically freshly verified. No automatic canon promotion, corpus ingestion, source editing, remote retrieval, model execution or fake semantic inference is added.
 
-## Bloomfield identity — AFTERIMAGE ATLAS
+AFTERIMAGE ATLAS is a subdued walnut reading desk: serif collection hierarchy, quiet brass guidance, dark material and patient two-column recognition/reading. INDEX CIRCUIT is a graphite schematic: compact monospace, angular edges, orthogonal relationship routes, instrument rails and a three-column working posture at wide sizes. NIGHTGLASS RELAY is a green glass console: suspended rounded surfaces, curved routes, spacious sans reading and restrained depth. They differ in spatial organization, typography, material, diagram language and density. Each keeps text contrast independent from surface glare. No purple or bright cream reading block.
 
-Identity: recognition emerges from the quiet weight of an archive; a remembered fragment becomes an illuminated, precise route. Viewed references: VELLUM (warm material and exposed layers), WAYFINDER (orientation and one decisive focal signal), VERDIGRIS LEDGER (tactile authority and deep framing). These inform a newly authored identity; their artwork is not copied or shipped.
+Bloomfield's Experiment Design Dimensions guide the mapping from domain to topology, material, expression, pacing and manipulation. Actual Scrapbook BASALT CIRCUIT and GLASS ARCHIVE images informed etched routing, depth and indexing; no reference artwork is copied. Keyboard focus has independent outlines, controls support touch, narrow screens stack reading and work, reduced motion is respected, and filtering retains the rest of the estate as orientation.
 
-```text
-Theme Name: AFTERIMAGE ATLAS
-Palette: Walnut ink #211B15; cabinet depth #392B1E; archival cream #F2E5C9; brass #D7B46C; burnt umber #B65B38; quiet brass ink #C4B595.
-Mood: Patient, inhabited discovery; the relief of finding the thing already kept.
-Emotional Intention: Recognize before researching. The archive is a companion with legible limits.
-Typography: Georgia display and collection names; system sans for controls; system monospace for exact routes.
-Visual Motif: Walnut catalog drawers with inset brass index plates lead to an open paper folio.
-Vibe Tags: archival, walnut, brass, scholarly, tactile, navigable
-Motion: Brief folio arrival; selection stays stable; reduced motion removes transitions.
-Useful Contexts: Knowledge estates, reference collections, source-led discovery.
-```
-
-Composition: masthead in dark walnut, large serif recognition question, narrow subject index, vertically stacked cabinet drawers and contrasting warm folio. Folio dominates source inspection and handoff; search stays within reach. Depth comes from inset index plates and beveled drawer edges, layered paper and quiet radial light, not decorative illustrations. Narrow view stacks shelf and folio with direct return navigation. Errors and keyboard focus have explicit words and independent outlines.
-
-The theme is authored under the user's implementation grant, not separately owner-approved. Runtime screenshots and engineering results establish implementation.
+Acceptance depends on executable behavior: exact route and source contents; delayed-response guards; literal Unicode/Windows-line-ending selection; source confinement; source snapshots; verified collection; atomic task persistence; separated notes; comparison; packet/download identity; historical import/export; explicit degraded states; real owner-format fixtures; runtime console/network checks; source-byte preservation; theme differentiation and desktop/phone screenshot inspection. See verification/RESULTS.md for observed evidence, not an inferred release claim.

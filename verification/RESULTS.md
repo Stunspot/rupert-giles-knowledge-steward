@@ -1,3 +1,31 @@
+# Giles Knowledge Atlas 1.2.0 — staged component verification
+
+The implemented explorer was exercised on Windows, Python 3.14 and actual Chromium. Seventy-six Python unit/HTTP/adapter tests pass; one additional symlink test is skipped because this host denies symbolic-link creation. Actual Windows junction-confinement tests pass. Forty-five independently authored browser checks, forty-one existing semantic browser assertions and thirteen existing browser regressions pass. JS syntax, Python compilation, diff checks and the repository line-ending gate pass. No lint/type/build framework exists in this standard-library Python and vanilla-JS application.
+
+The observed work loop is find → read → collect → compare → annotate → compile → use. Tests establish immediate sourced overview; explicit root versus entrypoint routing; complete store discovery beyond fifty records; shared-subject map basis; direct section/file and breadcrumb navigation; actual UTF-8/Unicode/CRLF text, DOCX main text, eight-page PDF windows and decoded image pixels; local Markdown links with spaces; exact quotation collection with source snapshots; separate notes and task persistence; chosen two-source comparison; packet source/note separation; downloaded Markdown byte equality; portable historical tray import/export; and changed/missing source preservation.
+
+Read-only Personal AI Archive tests exercise literal FTS search, recent published messages, stable source/external-ID/ordinal locators, long Unicode record pagination, immutable private snapshots, stale-token rejection, live-WAL refusal, database refresh detection and source-byte custody. Named archive sections and direct database routes expose actual retrieval. A held recent-results response cannot overwrite a later explicit search.
+
+Concurrent catalog/workbench conflicts reject atomically. Delayed source or brief responses cannot fill a different route or earlier catalog revision. Collection cannot attribute an old passage to a newly selected store. Work actions serialize save/collect/compile; stale comparison/packet output is invalidated when the tray changes. Malformed imports leave persisted data intact. Unsupported, missing, encrypted, scanned-textless and unavailable sources expose their actual limitation. Expected HTTP400/409 validation responses in deliberate failure tests are asserted outcomes.
+
+Independent review reproduced and verified repairs for omitted angle-bracket Markdown targets and misleading quotation page labels. Real-store testing exposed HTML parser normalization of Windows CRLF text; source text is now placed directly in the reader DOM so selection remains verbatim. Task assembly does not claim AI synthesis, PDF OCR, complete document interpretation or canonization.
+
+Actual source workflows read the real campaign and recipe collections, Research Library PDF text, Scrapbook image pixels and published Personal AI Archive messages. The copied-catalog workbench test collects exact passages, persists annotations, compares evidence and downloads a packet identical to the displayed Markdown. Final installed-development checks on port8808 preserve the real eight-store/revision9 catalog and published archive database hashes; the live tray remains empty. Requests remain on loopback and no unexpected application runtime/console errors occur. Private actual-source evidence stays outside this repository and distribution.
+
+All three environments were viewed at desktop and390px width: subdued AFTERIMAGE ATLAS, orthogonal three-rail INDEX CIRCUIT and spacious NIGHTGLASS RELAY. No page-width overflow or blocking visual defect was observed. Themes survive reload. Sampled reader text contrast in the final live runtime is8.72:1,9.93:1 and9.62:1 respectively against dark reading surfaces. The rejected white/cream panel is absent. Screen-reader conformance and macOS/Linux execution are not asserted by Windows browser checks.
+
+The component source is1.2.0, with the installed development runtime updated for the owner's skill-polish batch. Nova Emergent package ZIPs, release attachments, governed shelf bundle, parent version and customer release records remain held. This report establishes component execution, not the coordinated package release.
+
+## Reproduce
+
+Run `python -B -X utf8 -m unittest discover -s tests`, `node --check workspace/app.js`, `node tests/browser_regressions.cjs`, `node tests/browser_workflows.cjs`, and `node tests/browser.cjs` with Playwright and Chromium available. Set `PYTHON` to the desired Python runtime; `PLAYWRIGHT_MODULE` and `CHROMIUM_EXECUTABLE` configure the independent browser suites. The extended existing suite takes `GILES_LIVE_URL` for its read-only real-catalog route. Each suite manages its own isolated mutable fixtures/server; source/body mutation scenarios never operate on real collections. Install requirements.txt for PDF support.
+
+Independent portable fixture evidence: `verification/first-principles-independent/results.json` and its desktop/phone screenshots. Actual-source and installed-development evidence is private under the owner's Release Work custody.
+
+## Historical 1.1.0 evidence
+
+The material below records prior checks and design decisions. It does not establish the revised1.2.0 UI's acceptance.
+
 # Giles Knowledge Atlas 1.1.0 verification
 
 The implemented local explorer is accepted on the observed Windows/Python 3.14 and Chromium runtime. Thirty Python unit/API tests, forty-one semantic browser assertions and thirteen independently authored browser workflows pass. JS syntax and Python compilation pass. Actual wide and 390-pixel application screenshots were viewed.

@@ -1,11 +1,13 @@
 """Giles Knowledge Atlas: catalog locators, never take custody of source bodies."""
 from __future__ import annotations
-import argparse, copy, difflib, json, os, re, secrets, sys, tempfile, threading, time, unicodedata, webbrowser
+import argparse, codecs, copy, difflib, hashlib, io, json, os, re, secrets, sys, tempfile, threading, time, unicodedata, webbrowser, zipfile
+import xml.etree.ElementTree as ET
+import importlib.util
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 
 SCHEMA='giles-knowledge-catalog/v1'
 ROOT=Path(__file__).resolve().parents[1]
@@ -135,21 +137,205 @@ def browse(store,rel=''):
         return {'path':rel,'entries':entries[:200],'file':False,'truncated':len(entries)>200}
     except OSError as e: fail('Directory unavailable: '+str(e))
 
-def preview(store,rel=''):
+SAMPLE_BYTES=32768
+FILE_BYTES=50*1024*1024
+IMAGE_BYTES=20*1024*1024
+TEXT_SUFFIXES={'.md','.txt','.csv','.json','.yaml','.yml'}
+IMAGE_TYPES={'.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.gif':'image/gif','.webp':'image/webp'}
+
+def position(value,label):
+    if type(value) is not int or not 0<=value<=1_000_000_000: fail(label+' must be a nonnegative integer at most 1000000000')
+    return value
+
+def digest(value): return hashlib.sha256(value).hexdigest()
+
+def exact_text(value,label,maximum):
+    if not isinstance(value,str) or len(value)>maximum or '\x00' in value: fail(f'{label}: expected text up to {maximum} characters')
+    return value
+
+def fingerprint(stat,data):
+    # Bounded sample identity, plus file size and modification time; no full-corpus claim.
+    return digest(json.dumps([stat.st_size,stat.st_mtime_ns,digest(data)],separators=(',',':')).encode())
+
+def checked_read(p,maximum):
+    before=p.stat()
+    if before.st_size>maximum: fail(f'Source exceeds the {maximum//(1024*1024)} MB reading limit')
+    with p.open('rb') as f: data=f.read(maximum+1)
+    after=p.stat()
+    if len(data)>maximum: fail('Source exceeds the reading limit')
+    if (before.st_size,before.st_mtime_ns)!=(after.st_size,after.st_mtime_ns): raise Conflict('Source changed during reading; reload its preview')
+    return data,after
+
+def image_data(store,rel=''):
     p=safe_path(store,rel)
-    if p.suffix.casefold() not in {'.md','.txt','.csv','.json','.yaml','.yml'}: fail('Preview supports text records only; use the owning tool for this format')
-    if not p.is_file(): fail('Preview requires a file')
+    if p.suffix.casefold() not in IMAGE_TYPES or not p.is_file(): fail('Media requires an actual PNG, JPEG, GIF or WebP file')
+    data,stat=checked_read(p,IMAGE_BYTES)
+    signatures={'.png':data.startswith(b'\x89PNG\r\n\x1a\n'),'.jpg':data.startswith(b'\xff\xd8\xff'),'.jpeg':data.startswith(b'\xff\xd8\xff'),'.gif':data.startswith((b'GIF87a',b'GIF89a')),'.webp':len(data)>=12 and data[:4]==b'RIFF' and data[8:12]==b'WEBP'}
+    if not signatures[p.suffix.casefold()]: fail('Image signature does not match the permitted format')
+    return data,IMAGE_TYPES[p.suffix.casefold()],fingerprint(stat,data)
+
+def text_chunk(data,offset,bom=False):
+    if offset>len(data): fail('Offset is beyond the available source text')
+    selected=data[offset:offset+SAMPLE_BYTES]
+    decoder=codecs.getincrementaldecoder('utf-8-sig' if bom and offset==0 else 'utf-8')(errors='replace')
+    value=decoder.decode(selected,final=offset+len(selected)>=len(data))
+    pending=decoder.getstate()[0]
+    consumed=len(selected)-len(pending)
+    return value,consumed,offset+consumed if offset+consumed<len(data) else None
+
+def docx_text(data):
     try:
-        with p.open('rb') as f: data=f.read(32769)
-        clipped=len(data)>32768
-        value=data[:32768].decode('utf-8-sig',errors='replace')
-        return {'path':rel,'text':value,'truncated':clipped,'inspection':'bounded_text_sample','bytes_loaded':min(len(data),32768)}
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            infos=archive.infolist()
+            if len(infos)>2000 or sum(x.file_size for x in infos)>100*1024*1024: fail('DOCX ZIP exceeds bounded member or expansion limits')
+            candidates=[x for x in infos if x.filename=='word/document.xml']
+            if len(candidates)!=1: fail('DOCX requires exactly one main document XML')
+            info=candidates[0]
+            if info.file_size>8*1024*1024 or info.file_size>max(1,info.compress_size)*200: fail('DOCX main XML exceeds 8 MB or expansion-ratio limit')
+            with archive.open(info) as f: xml=f.read(8*1024*1024+1)
+            if len(xml)>8*1024*1024 or b'<!DOCTYPE' in xml.upper() or b'<!ENTITY' in xml.upper(): fail('DOCX XML exceeds its limit or contains prohibited entity declarations')
+            root=ET.fromstring(xml)
+            ns='{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
+            if root.tag!=ns+'document': fail('DOCX main XML is not a Word document')
+            paragraphs=[]
+            for paragraph in root.iter(ns+'p'):
+                fragments=[]
+                for node in paragraph.iter():
+                    if node.tag==ns+'t': fragments.append(node.text or '')
+                    elif node.tag==ns+'tab': fragments.append('\t')
+                    elif node.tag in {ns+'br',ns+'cr'}: fragments.append('\n')
+                paragraphs.append(''.join(fragments))
+            return '\n'.join(paragraphs).encode('utf-8')
+    except (zipfile.BadZipFile,ET.ParseError,RuntimeError,NotImplementedError) as e: fail('DOCX could not be read: '+str(e))
+
+def preview(store,rel='',offset=0,page=0):
+    offset=position(offset,'Offset');page=position(page,'Page');rel=relative(rel)
+    p=safe_path(store,rel)
+    if not p.is_file(): fail('Preview requires a file')
+    suffix=p.suffix.casefold()
+    result={'path':rel,'text':'','truncated':False,'bytes_loaded':0,'offset':offset,'next_offset':None,'anchor':{'offset':offset,'page':page},'notes':[]}
+    try:
+        if suffix in IMAGE_TYPES:
+            if offset or page: fail('Images do not have text offsets or pages')
+            data,mime,source=image_data(store,rel)
+            result.update(format='image',inspection='bounded_image_reference',bytes_loaded=len(data),mime=mime,source_fingerprint=source)
+            result['notes']=['Read-only image reference; no OCR, image interpretation or semantic extraction was performed. Image limit: 20 MB.']
+        elif suffix in TEXT_SUFFIXES:
+            if page: fail('Text sources do not have PDF pages')
+            before=p.stat()
+            if offset>before.st_size: fail('Offset is beyond the source file')
+            with p.open('rb') as f: f.seek(offset);data=f.read(SAMPLE_BYTES+4)
+            after=p.stat()
+            if (before.st_size,before.st_mtime_ns)!=(after.st_size,after.st_mtime_ns): raise Conflict('Source changed during reading; reload its preview')
+            value,consumed,next_local=text_chunk(data,0,bom=offset==0)
+            next_offset=offset+consumed if offset+consumed<after.st_size else None
+            result.update(format='text',text=value,bytes_loaded=consumed,next_offset=next_offset,truncated=offset>0 or next_offset is not None,inspection='bounded_text_sample',source_fingerprint=fingerprint(after,data[:consumed]))
+            result['notes']=[f'UTF-8 source bytes {offset}–{offset+consumed} of {after.st_size}; at most 32 KB per sample.']
+            if '\ufffd' in value: result['notes'].append('Invalid UTF-8 bytes were replaced for display; this is not a lossless decoding of those bytes.')
+        elif suffix in {'.pdf','.docx'}:
+            data,stat=checked_read(p,FILE_BYTES)
+            result['source_fingerprint']=fingerprint(stat,data)
+            if suffix=='.pdf':
+                try:
+                    from pypdf import PdfReader
+                except ImportError: fail('PDF text preview requires pypdf 6.10.0; install the supplied requirements.txt with your Python runtime')
+                try:
+                    reader=PdfReader(io.BytesIO(data),strict=False)
+                    if reader.is_encrypted: fail('Encrypted PDF text cannot be previewed here; use its owning reader')
+                    count=len(reader.pages)
+                    if page>=count and count: fail('Page is beyond the PDF')
+                    if page and not count: fail('This PDF has no pages')
+                    end=min(page+6,count)
+                    chunks=[]
+                    for index in range(page,end):
+                        extracted=reader.pages[index].extract_text() or ''
+                        if len(extracted.encode('utf-8'))>8*1024*1024: fail('PDF page text exceeds the bounded 8 MB extraction limit')
+                        chunks.append(extracted)
+                    extracted='\n\n'.join(chunks).encode('utf-8')
+                except CatalogError: raise
+                except Exception as e: fail('PDF text could not be read: '+str(e))
+                result.update(format='pdf',page=page,page_count=count,pages_total=count,pages_read=end-page,next_page=end if end<count else None,inspection='bounded_pdf_text_sample')
+                result['notes']=[f'PDF text extraction only: pages {page+1 if count else 0}–{end} of {count}; at most six pages per window and 32 KB displayed per sample. This does not establish complete PDF inspection; images, layout and scanned text without a text layer are not interpreted.']
+                if not extracted: result['notes'].append('No extractable text in this page window; use the owning PDF reader for scanned or visual contents.')
+            else:
+                if page: fail('DOCX sources do not have PDF pages')
+                extracted=docx_text(data)
+                result.update(format='docx',inspection='bounded_docx_text_sample')
+                result['notes']=['Main-document paragraph text only; at most 50 MB input, 8 MB XML and 32 KB displayed per sample. Headers, footers, comments, images and layout are not inspected.']
+            value,consumed,next_offset=text_chunk(extracted,offset)
+            result.update(text=value,bytes_loaded=consumed,next_offset=next_offset,truncated=offset>0 or next_offset is not None or result.get('next_page') is not None or page>0)
+            result['notes'].append(f'Extracted UTF-8 text bytes {offset}–{offset+consumed} of {len(extracted)} in this window.')
+        else: fail('This binary format is not supported by the reader; use its owning tool. Supported: UTF-8 text, PDF text, DOCX main text, PNG, JPEG, GIF and WebP.')
+        result['sample_sha256']=digest(json.dumps([result['format'],result['anchor'],result['text'],result['source_fingerprint']],ensure_ascii=False,separators=(',',':')).encode('utf-8'))
+        if result['format']=='image': result['media_url']='/api/media?'+urlencode({'id':store['id'],'path':rel,'source_fingerprint':result['source_fingerprint']})
+        return result
     except OSError as e: fail('Source unavailable: '+str(e))
 
-def brief(store,section='',question=''):
+_ARCHIVE_READER=None
+_ARCHIVE_LOCK=threading.RLock()
+
+def archive_reader():
+    global _ARCHIVE_READER
+    with _ARCHIVE_LOCK:
+        if _ARCHIVE_READER is None:
+            path=Path(__file__).with_name('archive_reader.py')
+            if not path.is_file(): fail('Archive adapter is unavailable in this installation')
+            spec=importlib.util.spec_from_file_location('giles_archive_reader',path)
+            module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module)
+            _ARCHIVE_READER=module
+        return _ARCHIVE_READER
+
+def archive_call(action,store,*args,**kwargs):
+    root=safe_path(store)
+    safe_path(store,'rag/archive-current.sqlite3')
+    try: return getattr(archive_reader(),action)(root,*args,**kwargs)
+    except ValueError as e:
+        if type(e).__name__=='ArchiveStaleError': raise Conflict(str(e))
+        fail(str(e))
+
+def archive_preview(store,anchor):
+    result=archive_call('record',store,anchor['source'],anchor['external_id'],anchor['ordinal'],offset=anchor.get('offset',0),snapshot=anchor.get('snapshot'))
+    result=dict(result,text=result['content'],path='rag/archive-current.sqlite3',bytes_loaded=len(result['content'].encode('utf-8')),inspection='bounded_archive_record_sample',truncated=result['offset']>0 or result['next_offset'] is not None)
+    result['notes']=['Immutable archive database snapshot; a single source message/chunk, not its entire document or conversation. At most 32768 characters per sample; offset is a character position.',f"Stable record: source={result['locator']['source']}; external_id={result['locator']['external_id']}; ordinal={result['locator']['ordinal']}; snapshot={result['snapshot']}",f"Archive title: {result['title']}; role: {result['role']}; recorded source path (metadata): {result['recorded_source_path']}",f"Full chunk text SHA-256: {result['content_fingerprint']}"]
+    result['notes']=[note if len(note)<=2000 else note[:1950]+' (display metadata truncated)' for note in result['notes']]
+    return result
+
+def overview(store):
+    """Expose a useful, sourced store view without mutating its catalog record."""
+    out={'store_id':store['id'],'observed_at':stamp(),'status':'present','contents':None,'index':None,'index_note':'','file':None}
+    if store['kind']=='website':
+        out.update(status='remote_unchecked',index_note='This is a remote knowledge store. Follow its registered HTTPS address in the owning browser; Giles has not fetched it.')
+        return out
+    try:
+        root=safe_path(store)
+        if not root.exists():
+            out.update(status='missing',index_note='The registered location is missing. Its catalog description is retained; edit its location if the store moved.')
+            return out
+        out['contents']=browse(store)
+        if Path(__file__).with_name('archive_reader.py').is_file() and root.is_dir() and archive_reader().detect(root): out['archive']=archive_call('summary',store)
+        if root.is_file():
+            out['file']={'name':root.name,'bytes':root.stat().st_size,'format':root.suffix.lower() or 'unknown'}
+            candidates=['']
+        else:
+            candidates=list(dict.fromkeys([store['entrypoint'],'INDEX.md','README.md','index.md','README.txt']))
+        for rel in candidates:
+            target=safe_path(store,rel)
+            if target.is_file() and target.suffix.casefold() in {'.md','.txt','.csv','.json','.yaml','.yml'}:
+                out['index']=preview(store,rel)
+                break
+        if not out['index']:
+            out['index_note']='No readable source index was found. Explore the visible folders and files below, or use a named section. This listing reports inventory, not the contents of unexamined documents.'
+    except (CatalogError,OSError) as e:
+        out.update(status='inaccessible',index_note=str(e))
+    return out
+
+def brief(store,section='',question='',path=None):
     sub=next((x for x in store['sections'] if x['id']==section),None) if section else None
     if section and not sub: fail('Section is not registered')
     rel=sub['path'] if sub else store['entrypoint']
+    if path is not None:
+        rel=relative(path)
+        if store['kind']!='website': safe_path(store,rel)
     target=store['location'].rstrip('/\\')+('/'+rel if rel else '')
     obs=store.get('availability',{})
     lines=[f"Look in {store['name']}"+(f" under {sub['title']}." if sub else '.'),f"Source route: {target}",f"Store root: {store['location']}",f"Custodial role: {store['role']}; lifecycle: {store['lifecycle']}; catalog inspection: {store['inspection']}."]
@@ -223,6 +409,166 @@ class Catalog:
             existing[s['id']]=s
         doc['stores']=list(existing.values());return self.save(doc,expected)
 
+WORKBENCH_SCHEMA='giles-workbench/v1'
+WORKBENCH_BYTES=500_000
+HEX=re.compile(r'^[a-f0-9]{64}$')
+
+def empty_workbench(): return {'schema':WORKBENCH_SCHEMA,'revision':0,'title':'Knowledge work','goal':'','excerpts':[]}
+
+def validate_workbench(value):
+    if not isinstance(value,dict) or set(value)-{'schema','revision','title','goal','excerpts','catalog_revision'}: fail('Unexpected workbench fields')
+    if value.get('schema')!=WORKBENCH_SCHEMA: fail('Unsupported workbench format')
+    revision=value.get('revision',0)
+    if type(revision) is not int or revision<0: fail('Workbench revision must be a nonnegative integer')
+    out={'schema':WORKBENCH_SCHEMA,'revision':revision,'title':text(value.get('title',''),'Workbench title',200,True),'goal':exact_text(value.get('goal',''),'Goal',10000),'excerpts':[]}
+    rows=value.get('excerpts',[])
+    if not isinstance(rows,list) or len(rows)>20: fail('Workbench allows at most 20 excerpts')
+    ids=set()
+    fields={'id','store_id','store_name','location','path','text','note','collected_at','verified_at','format','anchor','inspection','limits','provenance','sample_sha256','source_fingerprint','verification'}
+    for item in rows:
+        if not isinstance(item,dict) or set(item)-fields or (fields-{'verification'})-set(item): fail('Invalid excerpt fields')
+        row={k:text(item[k],k,2000,True) for k in ('id','store_id','store_name','location','collected_at','verified_at','format','inspection')}
+        if not ID.fullmatch(row['id']) or row['id'] in ids or not ID.fullmatch(row['store_id']): fail('Excerpt IDs must be unique slugs and store IDs must be valid')
+        ids.add(row['id'])
+        if row['format'] not in {'text','pdf','docx','image','archive'}: fail('Invalid excerpt format')
+        row.update(path=relative(item['path']),text=exact_text(item['text'],'Excerpt',SAMPLE_BYTES),note=exact_text(item['note'],'Annotation',10000))
+        if not row['text'] and row['format']!='image': fail('Text excerpts cannot be empty')
+        anchor=item['anchor']
+        if not isinstance(anchor,dict): fail('Excerpt requires its preview anchor')
+        if row['format']=='archive':
+            if set(anchor)!={'source','external_id','ordinal','snapshot','offset'}: fail('Archive excerpt requires its stable record anchor')
+            row['anchor']={k:exact_text(anchor[k],k,2048) for k in ('source','external_id','snapshot')}
+            if any(not v for v in row['anchor'].values()): fail('Archive anchor requires nonempty stable fields')
+            row['anchor'].update(ordinal=position(anchor['ordinal'],'Ordinal'),offset=position(anchor['offset'],'Offset'))
+            if row['path']!='rag/archive-current.sqlite3': fail('Archive path must be the governed database route')
+        else:
+            if set(anchor)!={'offset','page'}: fail('Excerpt requires its preview anchor')
+            row['anchor']={k:position(anchor[k],k.title()) for k in ('offset','page')}
+        observation=item.get('verification',{'status':'unverified','checked_at':'','detail':'Historical source sample; current source has not been checked.'})
+        if not isinstance(observation,dict) or set(observation)!={'status','checked_at','detail'} or observation['status'] not in {'unverified','verified_match','changed','unavailable'}: fail('Invalid source verification observation')
+        row['verification']={'status':observation['status'],'checked_at':text(observation['checked_at'],'Verification time',100),'detail':text(observation['detail'],'Verification detail',2000,True)}
+        if not isinstance(item['limits'],list) or len(item['limits'])>12: fail('Invalid inspection limits')
+        row['limits']=[text(note,'Inspection limit',2000,True) for note in item['limits']]
+        provenance=item['provenance']
+        if not isinstance(provenance,dict) or set(provenance)!={'catalog_revision','role','lifecycle','owner','description_basis'}: fail('Invalid excerpt provenance')
+        revision=provenance['catalog_revision']
+        if type(revision) is not int or revision<0: fail('Invalid provenance catalog revision')
+        row['provenance']={'catalog_revision':revision,**{k:text(provenance[k],k,2000) for k in ('role','lifecycle','owner','description_basis')}}
+        for key in ('sample_sha256','source_fingerprint'):
+            if not isinstance(item[key],str) or not HEX.fullmatch(item[key]): fail('Invalid source/sample fingerprint')
+            row[key]=item[key]
+        out['excerpts'].append(row)
+    if len((json.dumps(out,ensure_ascii=False,indent=2)+'\n').encode('utf-8'))>WORKBENCH_BYTES: fail('Workbench exceeds 500 KB; remove or shorten excerpts and notes')
+    return out
+
+class Workbench:
+    def __init__(self,catalog):
+        self.catalog=catalog;self.path=catalog.path.parent/'workbench.json';self.lock=threading.RLock()
+    def custody(self):
+        if self.path.resolve().is_relative_to(ROOT.resolve()): fail('Workbench must be beside a catalog outside the Giles skill; select an external catalog location')
+        if self.path.resolve()==self.catalog.path.resolve(): fail('Workbench and catalog paths must differ')
+    def read(self):
+        self.custody()
+        with self.lock:
+            if not self.path.exists(): return empty_workbench()
+            if self.path.stat().st_size>WORKBENCH_BYTES: fail('Workbench exceeds 500 KB; preserve it and restore an exported copy')
+            try: return validate_workbench(json.loads(self.path.read_text(encoding='utf-8')))
+            except (OSError,json.JSONDecodeError) as e: fail('Workbench unreadable; preserve it and restore an exported copy: '+str(e))
+    @contextmanager
+    def transaction(self,expected_catalog,expected_workbench):
+        self.custody()
+        if type(expected_catalog) is not int or type(expected_workbench) is not int: fail('Expected catalog and workbench revisions are required')
+        with self.catalog.lock,process_lock(self.catalog.path.with_suffix('.lock')),self.lock,process_lock(self.path.with_suffix('.lock')):
+            catalog=self.catalog.read();old=self.read()
+            if catalog['revision']!=expected_catalog: raise Conflict('Catalog changed; reload before changing the workbench')
+            if old['revision']!=expected_workbench: raise Conflict('Workbench changed in another window; reload before saving')
+            yield catalog,old
+    def write(self,value,revision):
+        candidate=copy.deepcopy(value);candidate['revision']=revision+1;candidate=validate_workbench(candidate)
+        blob=json.dumps(candidate,ensure_ascii=False,indent=2)+'\n'
+        fd,temp=tempfile.mkstemp(prefix='workbench-',suffix='.tmp',dir=self.path.parent)
+        try:
+            with os.fdopen(fd,'w',encoding='utf-8',newline='\n') as f: f.write(blob);f.flush();os.fsync(f.fileno())
+            os.replace(temp,self.path)
+        finally:
+            if os.path.exists(temp): os.unlink(temp)
+        return candidate
+    def save(self,value,expected_catalog,expected_workbench):
+        candidate=validate_workbench(value)
+        if candidate['revision']!=expected_workbench: raise Conflict('Workbench document revision does not match the expected revision')
+        with self.transaction(expected_catalog,expected_workbench) as (catalog,old):
+            byid={x['id']:x for x in old['excerpts']}
+            for item in candidate['excerpts']:
+                prior=byid.get(item['id'])
+                if prior is None or {k:v for k,v in prior.items() if k not in {'note','verification'}}!={k:v for k,v in item.items() if k not in {'note','verification'}}: fail('Collected source fields are immutable; collect from a preview or import a historical workbench')
+                item['verification']=prior['verification']
+            return self.write(candidate,old['revision'])
+    def source_item(self,catalog,body,ident=None,collected_at=None):
+        store=getstore(catalog,body['id']);anchor=body.get('anchor',{'offset':0,'page':0})
+        if not isinstance(anchor,dict): fail('Collection requires a valid preview anchor')
+        if 'source' in anchor:
+            if set(anchor)!={'source','external_id','ordinal','snapshot','offset'}: fail('Invalid archive collection anchor')
+            if body.get('path')!='rag/archive-current.sqlite3': fail('Invalid archive source route')
+            sample=archive_preview(store,anchor)
+        else:
+            if set(anchor)!={'offset','page'}: fail('Collection requires a valid preview anchor')
+            sample=preview(store,body.get('path',''),anchor['offset'],anchor['page'])
+        if not isinstance(body.get('sample_sha256'),str) or not secrets.compare_digest(sample['sample_sha256'],body['sample_sha256']): raise Conflict('Displayed source sample changed; reload its preview before collecting')
+        selected=exact_text(body.get('text',''),'Selected excerpt',SAMPLE_BYTES)
+        if sample['format']=='image':
+            if selected: fail('Image collection records a source reference, not unverified OCR text')
+        elif not selected or selected not in sample['text']: fail('Selected excerpt must occur verbatim in the displayed source sample')
+        now=stamp()
+        return {'id':ident or 'excerpt-'+secrets.token_hex(8),'store_id':store['id'],'store_name':store['name'],'location':store['location'],'path':sample['path'],'text':selected,'note':exact_text(body.get('note',''),'Annotation',10000),'collected_at':collected_at or now,'verified_at':now,'verification':{'status':'verified_match','checked_at':now,'detail':'Selected source sample was read and verified against its actual source.'},'format':sample['format'],'anchor':sample['anchor'],'inspection':sample['inspection'],'limits':sample['notes'],'sample_sha256':sample['sample_sha256'],'source_fingerprint':sample['source_fingerprint'],'provenance':{'catalog_revision':catalog['revision'],'role':store['role'],'lifecycle':store['lifecycle'],'owner':store['owner'],'description_basis':store['provenance']}}
+    def collect(self,body):
+        with self.transaction(body['expected_revision'],body['expected_workbench_revision']) as (catalog,old):
+            if len(old['excerpts'])>=20: fail('Workbench allows at most 20 excerpts')
+            old['excerpts'].append(self.source_item(catalog,body))
+            return self.write(old,old['revision'])
+    def observe(self,value,catalog):
+        result=copy.deepcopy(value)
+        for item in result['excerpts']:
+            status='verified_match';detail='Current source sample matches the collected fingerprint and verbatim text.'
+            try:
+                store=getstore(catalog,item['store_id'])
+                if (item['store_name'],item['location'])!=(store['name'],store['location']): raise Conflict('The registered source route or store name has changed.')
+                if item['format']=='archive':
+                    try: sample=archive_preview(store,item['anchor'])
+                    except Conflict:
+                        # A session cache token can expire while immutable source bytes remain identical.
+                        sample=archive_preview(store,dict(item['anchor'],snapshot=None))
+                else: sample=preview(store,item['path'],item['anchor']['offset'],item['anchor']['page'])
+                if sample['sample_sha256']!=item['sample_sha256'] or sample['source_fingerprint']!=item['source_fingerprint'] or sample['format']!=item['format'] or (item['text'] and item['text'] not in sample['text']): raise Conflict('Current source sample differs from this historical excerpt.')
+            except Conflict as e: status='changed';detail=str(e)
+            except (CatalogError,OSError) as e: status='unavailable';detail=str(e)
+            item['verification']={'status':status,'checked_at':stamp(),'detail':detail+' The collected passage and historical provenance are retained.' if status!='verified_match' else detail}
+        return result
+    def restore(self,value,expected_catalog,expected_workbench):
+        candidate=validate_workbench(value)
+        with self.transaction(expected_catalog,expected_workbench) as (catalog,old):
+            # Import preserves historical evidence; present-day verification is a distinct observation.
+            candidate=self.observe(candidate,catalog)
+            return self.write(candidate,old['revision'])
+
+def packet(value):
+    doc=validate_workbench(value)
+    lines=['# '+doc['title'],'','## Goal','',doc['goal'] or '(No goal supplied.)','','This packet contains collected source excerpts and separate user annotations. It performs no semantic synthesis. Reading limits apply to each sample; collected records are historical evidence, not a claim that their source is unchanged now.','']
+    for number,item in enumerate(doc['excerpts'],1):
+        route=item['location'].rstrip('/\\')+('/'+item['path'] if item['path'] else '')
+        anchor=item['anchor'];provenance=item['provenance']
+        lines += [f"## {number}. {item['store_name']}",'',f"Store ID: {item['store_id']}",f"Store root: {item['location']}",f"Relative path: {item['path'] or '(registered root file)'}",f"Source route: {route}",f"Format: {item['format']}; reading anchor: {json.dumps(anchor,ensure_ascii=False,sort_keys=True)}",f"Collected at (record): {item['collected_at']}; source verified at: {item['verified_at']}",f"Inspection: {item['inspection']}",f"Custodial role: {provenance['role']}; lifecycle: {provenance['lifecycle']}; owner: {provenance['owner'] or 'unrecorded'}; catalog revision: {provenance['catalog_revision']}",f"Catalog description basis (metadata): {provenance['description_basis'] or 'unrecorded'}",f"Source fingerprint (bounded identity): {item['source_fingerprint']}",f"Displayed sample SHA-256: {item['sample_sha256']}",'','Inspection limits:']
+        lines.extend('- '+note for note in item['limits'])
+        observation=item['verification'];lines += ['',f"Current source observation: {observation['status']} at {observation['checked_at'] or 'not checked'}; {observation['detail']}"]
+        lines += ['','### Verbatim source excerpt','']
+        if item['format']=='image': lines += ['(Image source reference; no textual excerpt or OCR was collected.)']
+        else:
+            # A fence longer than any source backtick run preserves literal source text.
+            runs=re.findall(r'`+',item['text']);fence='`'*max(3,1+max(map(len,runs),default=0))
+            lines += [fence,item['text'],fence]
+        lines += ['','### User annotation (not source text)','',item['note'] or '(No annotation supplied.)','']
+    if not doc['excerpts']: lines += ['No excerpts have been collected.','']
+    return '\n'.join(lines)
+
 def default_catalog():
     explicit=os.environ.get('GILES_CATALOG_HOME')
     if explicit: return Path(explicit)/'catalog.json'
@@ -249,7 +595,7 @@ class Handler(BaseHTTPRequestHandler):
         if write and not secrets.compare_digest(self.headers.get('X-Giles-Token',''),self.server.token): fail('Session token required')
     def dispatch(self,write=False):
         try:
-            self.guard(write);u=urlparse(self.path);query={k:v[0] for k,v in parse_qs(u.query).items()}
+            self.guard(write);u=urlparse(self.path);query={k:v[0] for k,v in parse_qs(u.query,keep_blank_values=True).items()}
             if not write:
                 filename={'/':'index.html','/app.js':'app.js','/style.css':'style.css'}.get(u.path)
                 if filename:
@@ -265,13 +611,39 @@ class Handler(BaseHTTPRequestHandler):
                 if u.path=='/api/save': result=self.server.catalog.save(body['catalog'],body['expected_revision'])
                 elif u.path=='/api/check': result=self.server.catalog.check(body['id'],body['expected_revision'])
                 elif u.path=='/api/import': result=self.server.catalog.merge(body['catalog'],body['expected_revision'],body.get('replace',False) is True)
+                elif u.path=='/api/collect': result=dict(self.server.workbench.collect(body),catalog_revision=body['expected_revision'])
+                elif u.path=='/api/workbench/save': result=dict(self.server.workbench.save(body['workbench'],body['expected_revision'],body['expected_workbench_revision']),catalog_revision=body['expected_revision'])
+                elif u.path=='/api/workbench/import': result=dict(self.server.workbench.restore(body['workbench'],body['expected_revision'],body['expected_workbench_revision']),catalog_revision=body['expected_revision'])
                 else: return self.response(404,{'error':'Unknown action'})
                 return self.response(200,result)
             if u.path=='/api/catalog': return self.response(200,doc)
             if u.path=='/api/search': return self.response(200,{'catalog':doc,'hits':search(doc,query.get('q',''))})
-            if u.path=='/api/brief': return self.response(200,{'text':brief(getstore(doc,query.get('id','')),query.get('section',''),query.get('question',''))})
-            if u.path=='/api/browse': return self.response(200,browse(getstore(doc,query.get('id','')),query.get('path','')))
-            if u.path=='/api/preview': return self.response(200,preview(getstore(doc,query.get('id','')),query.get('path','')))
+            if u.path in {'/api/overview','/api/browse','/api/preview','/api/brief','/api/media','/api/workbench','/api/workbench/export','/api/packet','/api/archive/search','/api/archive/record'} and 'expected_revision' in query:
+                if int(query['expected_revision'])!=doc['revision']: raise Conflict('Catalog changed; reload before inspecting this source route.')
+            def source_response(result):
+                if self.server.catalog.read()['revision']!=doc['revision']: raise Conflict('Catalog changed during source inspection; reload and retry.')
+                return self.response(200,dict(result,catalog_revision=doc['revision']))
+            if u.path=='/api/brief': return source_response({'text':brief(getstore(doc,query.get('id','')),query.get('section',''),query.get('question',''),query.get('path'))})
+            if u.path=='/api/overview': return source_response(overview(getstore(doc,query.get('id',''))))
+            if u.path=='/api/browse': return source_response(browse(getstore(doc,query.get('id','')),query.get('path','')))
+            if u.path=='/api/preview':
+                result=preview(getstore(doc,query.get('id','')),query.get('path',''),int(query.get('offset','0')),int(query.get('page','0')))
+                if result['format']=='image': result['media_url']+='&'+urlencode({'expected_revision':doc['revision']})
+                return source_response(result)
+            if u.path=='/api/media':
+                if 'expected_revision' not in query: fail('Media requires the expected catalog revision')
+                data,mime,source=image_data(getstore(doc,query.get('id','')),query.get('path',''))
+                if not secrets.compare_digest(query.get('source_fingerprint',''),source): raise Conflict('Image changed; reload its preview')
+                if self.server.catalog.read()['revision']!=doc['revision']: raise Conflict('Catalog changed during image reading; reload its preview')
+                return self.response(200,data,mime)
+            if u.path=='/api/archive/search': return source_response(archive_call('search',getstore(doc,query.get('id','')),query.get('q',''),limit=int(query.get('limit','20')),snapshot=query.get('snapshot')))
+            if u.path=='/api/archive/record': return source_response(archive_preview(getstore(doc,query.get('id','')),{'source':query.get('source',''),'external_id':query.get('external_id',''),'ordinal':int(query.get('ordinal','0')),'offset':int(query.get('offset','0')),'snapshot':query.get('snapshot')}))
+            if u.path in {'/api/workbench','/api/workbench/export','/api/packet'}:
+                work=self.server.workbench.observe(self.server.workbench.read(),doc)
+                if 'expected_workbench_revision' in query and int(query['expected_workbench_revision'])!=work['revision']: raise Conflict('Workbench changed; reload before exporting')
+                if u.path=='/api/workbench/export': return self.response(200,work)
+                if u.path=='/api/packet': return source_response({'markdown':packet(work),'workbench_revision':work['revision']})
+                return source_response(work)
             if u.path=='/api/export': return self.response(200,doc)
             return self.response(404,{'error':'Not found'})
         except Conflict as e: self.response(409,{'error':str(e)})
@@ -281,7 +653,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self): self.dispatch(True)
 
 def make_server(catalog,port=0):
-    server=ThreadingHTTPServer(('127.0.0.1',port),Handler);server.catalog=Catalog(catalog);server.token=secrets.token_urlsafe(32);return server
+    server=ThreadingHTTPServer(('127.0.0.1',port),Handler);server.catalog=Catalog(catalog);server.workbench=Workbench(server.catalog);server.token=secrets.token_urlsafe(32);return server
 
 def main(argv=None):
     for stream in (sys.stdout,sys.stderr):
